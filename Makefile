@@ -78,8 +78,27 @@ uninstall:
 # -----------------------------------------------------------
 test:
 	@echo ""
-	@echo "🧪 Running pytest..."
-	pytest -v --disable-warnings
+	@echo "🧪 Running pytest with coverage..."
+	pytest -v --disable-warnings \
+  --cov=src/jps_pre_commit_utils \
+  --cov-report=term-missing \
+  --cov-config=.coveragerc \
+  --cov-branch \
+  --cov-fail-under=0 \
+  --cov-append \
+  --cov-context=test \
+  --cov-report=xml \
+  --cov-report=term-missing \
+  --cov-branch \
+  --cov-fail-under=0 \
+  --cov-context=test \
+  --cov-append \
+  --cov-append \
+  --cov-context=test \
+  --cov-report=term-missing \
+  --cov-append \
+  --cov-context=test
+
 
 lint:
 	@echo ""

@@ -2,6 +2,8 @@
 
 ![Build](https://github.com/jai-python3/jps-pre-commit-utils/actions/workflows/test.yml/badge.svg)
 ![Publish to PyPI](https://github.com/jai-python3/jps-pre-commit-utils/actions/workflows/publish-to-pypi.yml/badge.svg)
+[![codecov](https://codecov.io/gh/jai-python3/jps-pre-commit-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/jai-python3/jps-pre-commit-utils)
+
 
 Custom pre-commit utilities for detecting debug/test leftovers, hardcoded paths, and environment-specific code fragments  
 in Python, Perl, and YAML files before they are committed.  

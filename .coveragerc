@@ -1,0 +1,9 @@
+[run]
+branch = True
+parallel = True
+# Remove the concurrency line entirely – pytest-cov enables subprocess tracking automatically
+source = src/jps_pre_commit_utils
+
+[report]
+show_missing = True
+skip_covered = True
