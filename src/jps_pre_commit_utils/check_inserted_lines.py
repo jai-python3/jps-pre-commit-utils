@@ -44,6 +44,7 @@ DEFAULT_PATH_REGEX = r"(/mnt|/home|/Users|C:\\\\Users)[A-Za-z0-9._/\-]+"
 # Helper functions
 # -----------------------------------------------------------
 
+
 def load_config() -> dict:
     """Load configuration from repo or user config file."""
     local_cfg = Path(".my-pre-commit-checks.yaml")
@@ -166,12 +167,14 @@ def scan_findings(findings, patterns, config):
 
             for pattern in applicable_patterns:
                 if pattern.search(line):
-                    violations.append({
-                        "file": filename,
-                        "line": lineno,
-                        "pattern": pattern.pattern,
-                        "content": line.strip(),
-                    })
+                    violations.append(
+                        {
+                            "file": filename,
+                            "line": lineno,
+                            "pattern": pattern.pattern,
+                            "content": line.strip(),
+                        }
+                    )
                     break  # only report first matching pattern per line
             progress.advance(task)
 
@@ -216,6 +219,7 @@ def print_report(violations):
 # -----------------------------------------------------------
 # Main entry point
 # -----------------------------------------------------------
+
 
 def main():
     config = load_config()
