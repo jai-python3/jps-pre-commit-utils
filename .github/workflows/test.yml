@@ -48,7 +48,6 @@ jobs:
 
       # Optional: upload coverage results to Codecov
       - name: Upload coverage to Codecov
-        if: ${{ env.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
