@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "build"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jps-pre-commit-utils"
+version = "1.0.0"
+description = "Custom pre-commit utility for scanning diffs for debug/test patterns, hardcoded paths, and other configurable checks."
+authors = [{ name = "Jaideep Sundaram" }]
+license = { text = "MIT License" }
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["pre-commit", "git", "lint", "static-analysis", "utilities"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = ["rich>=13.7.0", "pyyaml>=6.0"]
+
+[project.scripts]
+jj-pre-commit-checks = "jps_pre_commit_utils.check_inserted_lines:main"
+
+[project.optional-dependencies]
+test = ["pytest>=8.0.0"]
+dev = [
+    "flake8>=7.0.0",
+    "black>=24.0.0",
+    "build>=1.2.1",
+    "twine>=5.0.0",
+    "pytest>=8.0.0",
+    "isort>=5.13.0"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = ["src", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "-v --disable-warnings"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.coverage.run]
+branch = true
+source = ["jps_pre_commit_utils"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
