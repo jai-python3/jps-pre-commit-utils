@@ -17,21 +17,20 @@ def test_check_inserted_lines_runs(monkeypatch, tmp_path):
     # Mock only `git diff --cached`, not the outer script execution
     def mock_run(args, capture_output=True, text=True, check=False):
         if isinstance(args, list) and "git" in args and "diff" in args:
+
             class MockCompleted:
                 stdout = ""  # simulate empty diff
                 returncode = 0
+
             return MockCompleted()
         # fallback to real subprocess.run for the test's own script execution
         return original_run(args, capture_output=capture_output, text=text, check=check)
 
     monkeypatch.setattr(subprocess, "run", mock_run)
 
-    result = subprocess.run(
-        [sys.executable, str(script_path)],
-        capture_output=True,
-        text=True
-    )
+    result = subprocess.run([sys.executable, str(script_path)], capture_output=True, text=True)
 
     assert result.returncode == 0, f"Script exited with unexpected code {result.returncode}"
-    assert "✅" in result.stdout or "No issues detected" in result.stdout, \
-        f"Unexpected output:\n{result.stdout}"
+    assert (
+        "✅" in result.stdout or "No issues detected" in result.stdout
+    ), f"Unexpected output:\n{result.stdout}"
