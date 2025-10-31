@@ -1,0 +1,68 @@
+name: Publish to PyPI
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.ref_name == 'main') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install build dependencies
+        run: pip install build twine requests
+
+      - name: Build distribution
+        run: python -m build
+
+      - name: Check if version already exists on PyPI
+        id: check
+        run: |
+          VERSION=$(python -c "import pathlib, tomllib; data=tomllib.loads(pathlib.Path('pyproject.toml').read_text()); print(data['project']['version'])")
+          echo "📦 Checking if version ${VERSION} exists on PyPI..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/pypi/jps-pre-commit-utils/${VERSION}/json || true)
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Version ${VERSION} already exists on PyPI. Skipping upload."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "🆕 Version ${VERSION} not found on PyPI. Proceeding with upload."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to PyPI
+        if: steps.check.outputs.skip == 'false'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          echo "🚀 Uploading distribution to PyPI..."
+          twine upload dist/*
+
+      - name: Upload built artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/*
