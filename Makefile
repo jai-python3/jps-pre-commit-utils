@@ -11,7 +11,7 @@ PART := $(word 2, $(MAKECMDGOALS))
 DRYRUN ?= 0
 DATE := $(shell date +'%Y-%m-%d')
 
-.PHONY: help clean version install-build-tools build publish install uninstall test lint format release bump_version changelog
+.PHONY: help clean version install-build-tools build publish install uninstall test lint format release bump_version changelog build-test
 
 # -----------------------------------------------------------
 # Help
@@ -96,6 +96,10 @@ format:
 # -----------------------------------------------------------
 bump_version:
 	@part=$(PART); \
+	if [ "$$part" = "MAJOR" ]; then \
+		read -p "⚠️  Confirm MAJOR version bump (y/N): " confirm; \
+		[ "$$confirm" = "y" ] || { echo "❌ Aborted."; exit 1; }; \
+	fi; \
 	current=$(CURRENT_VERSION); \
 	IFS=. read -r major minor patch <<< "$$current"; \
 	case "$$part" in \
@@ -205,3 +209,9 @@ changelog:
 # Allow "make release PATCH" to behave like "make release PART=PATCH"
 # PATCH MINOR MAJOR:
 # 	@$(MAKE) release PART=$@ DRYRUN=$(DRYRUN)
+
+build-test:
+	@$(MAKE) clean
+	@$(MAKE) build
+	@$(MAKE) test
+
