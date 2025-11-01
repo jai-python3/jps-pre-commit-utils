@@ -39,7 +39,10 @@ jobs:
       - name: Lint and test with coverage
         run: |
           make lint
-          pytest -v --disable-warnings --cov=src/jps_pre_commit_utils --cov-report=xml --cov-report=term-missing
+          pytest -v --disable-warnings \
+          --cov=src/jps_pre_commit_utils \
+          --cov-report=xml \
+          --cov-report=term-missing
 
       - name: Verify package build
         run: |
