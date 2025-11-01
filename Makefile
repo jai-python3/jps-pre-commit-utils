@@ -258,16 +258,29 @@ changelog:
 
 changelog-preview:
 	@echo "🧾 Previewing changelog entries since last tag..."
+	@printf "\n🧾 \\033[1;36mPreviewing changelog entries since last tag...\\033[0m\n"
 	@prev_tag=$$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo ""); \
 	if [ -n "$$prev_tag" ]; then \
-		echo "📌 Comparing commits since $$prev_tag"; \
-		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- \033[1;33m[%ad]\033[0m \033[1;32m%an\033[0m: %s" --date=short --no-color | tac; \
+		printf "📌 \\033[1;34mComparing commits since %s\\033[0m\n\n" "$$prev_tag"; \
+		git --no-pager log "$$prev_tag"..HEAD \
+			--pretty=format:'%ad%x09%an%x09%s' --date=short --no-color | tac \
+		| awk 'BEGIN{Y="\033[1;33m";G="\033[1;32m";Z="\033[0m"} \
+		       {split($$0,a,"\t"); \
+		        subj=(length(a)>2?a[3]:""); \
+		        for(i=4;i<=length(a);i++) subj=subj "\t" a[i]; \
+		        printf("- %s[%s]%s %s%s%s: %s\n",Y,a[1],Z,G,a[2],Z,subj)}'; \
 	else \
-		echo "📌 No previous tag found — showing all commits."; \
-		git --no-pager log --pretty=format:"- \033[1;33m[%ad]\033[0m \033[1;32m%an\033[0m: %s" --date=short --no-color | tac; \
+		printf "⚠️  \\033[1;31mNo tags found — showing all commits.\\033[0m\n"; \
+		git --no-pager log \
+			--pretty=format:'%ad%x09%an%x09%s' --date=short --no-color | tac \
+		| awk 'BEGIN{Y="\033[1;33m";G="\033[1;32m";Z="\033[0m"} \
+		       {split($$0,a,"\t"); \
+		        subj=(length(a)>2?a[3]:""); \
+		        for(i=4;i<=length(a);i++) subj=subj "\t" a[i]; \
+		        printf("- %s[%s]%s %s%s%s: %s\n",Y,a[1],Z,G,a[2],Z,subj)}'; \
 	fi; \
 	echo ""; \
-	echo "✅ Above entries would be added to the next changelog section."
+	printf "\n✅ \\033[1;32mAbove entries would be added to the next changelog section.\\033[0m\n"
 
 
 
