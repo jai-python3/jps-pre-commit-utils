@@ -4,6 +4,7 @@ repos:
     rev: v2.3.1
     hooks:
       - id: autoflake
+        name: Autoflake (remove unused imports/vars)
         args:
           [
             "--in-place",
@@ -12,45 +13,53 @@ repos:
             "--ignore-init-module-imports",
             "--recursive",
           ]
+        types_or: [python]
+        stages: [pre-commit]
 
   # --- isort: sort imports consistently ---
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
+        name: Isort (import sorter)
         args: ["--profile", "black"]
+        types_or: [python]
+        stages: [pre-commit]
 
-  # --- Black: format code ---
+  # --- Black: code formatter ---
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
+        name: Black (code formatter)
+        types_or: [python]
+        stages: [pre-commit]
 
   # --- Flake8: linting ---
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
     hooks:
       - id: flake8
-        args:
-          [
-            "--max-line-length=88",
-            "--extend-ignore=E203",
-            "--exclude=.venv,build,dist",
-          ]
+        name: Flake8 (linting)
+        args: ["--config=.flake8"]
+        types_or: [python]
+        stages: [pre-commit]
 
-  # --- Detect TODOs with due dates ---
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+  # --- Markdownlint Auto-Fix (should run before linting) ---
+  - repo: https://github.com/DavidAnson/markdownlint-cli2-fix
+    rev: v0.13.0
     hooks:
-      - id: markdownlint
+      - id: markdownlint-cli2-fix
+        name: Markdownlint Auto-Fix
         files: \.(md|markdown)$
+        stages: [pre-commit]
 
-  # --- Pytest: optional local test hook (fast sanity check) ---
-  - repo: local
+  # --- Markdownlint: check-only (run after fixes) ---
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.13.0
     hooks:
-      - id: pytest
-        name: pytest
-        entry: pytest -q --disable-warnings
-        language: system
-        types: [python]
-        pass_filenames: false
+      - id: markdownlint-cli2
+        name: Markdownlint (check only)
+        files: \.(md|markdown)$
+        stages: [pre-commit]
+
