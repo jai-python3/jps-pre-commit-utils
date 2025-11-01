@@ -232,17 +232,23 @@ changelog:
 	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
 	if [ -n "$$prev_tag" ]; then \
 		echo "🧾 Including commits since $$prev_tag"; \
-		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tail -r >> docs/.CHANGELOG.tmp; \
+		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tac >> docs/.CHANGELOG.tmp; \
 	else \
 		echo "🧾 No previous tag found — including all commits."; \
-		git --no-pager log --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tail -r >> docs/.CHANGELOG.tmp; \
+		git --no-pager log --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tac >> docs/.CHANGELOG.tmp; \
 	fi; \
 	echo "" >> docs/.CHANGELOG.tmp; \
+	# Ensure correct spacing (markdownlint compliant)
+	sed -i '/^## /i\\' docs/CHANGELOG.md 2>/dev/null || true; \
+	sed -i '/^-/i\\' docs/CHANGELOG.md 2>/dev/null || true; \
 	# Prepend new changelog section (newest first)
 	(cat docs/.CHANGELOG.tmp; echo ""; cat docs/CHANGELOG.md) > docs/.CHANGELOG.new; \
 	mv docs/.CHANGELOG.new docs/CHANGELOG.md; \
 	rm -f docs/.CHANGELOG.tmp; \
+	# Clean extra blank lines (avoid markdownlint MD012)
+	sed -i '/^$$/{N;/^\n$$/D;}' docs/CHANGELOG.md 2>/dev/null || true; \
 	echo "✅ Changelog updated at docs/CHANGELOG.md"
+
 
 
 
@@ -251,20 +257,17 @@ changelog:
 # 	@$(MAKE) release PART=$@ DRYRUN=$(DRYRUN)
 
 changelog-preview:
-	@printf "\n🧾 \\033[1;36mPreviewing changelog entries since last tag...\\033[0m\n"
-	@latest_tag=$$(git describe --tags --abbrev=0 2>/dev/null || echo ""); \
-	if [ -n "$$latest_tag" ]; then \
-		printf "📌 \\033[1;34mComparing commits since %s\\033[0m\n\n" "$$latest_tag"; \
-		git log "$$latest_tag"..HEAD --date=short \
-			--pretty=format:"\\033[1;33m- [%ad]\\033[0m \\033[1;32m%an\\033[0m: %s" \
-		| awk '{gsub(/\\033/, "\033"); print}' | sort -r; \
+	@echo "🧾 Previewing changelog entries since last tag..."
+	@prev_tag=$$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo ""); \
+	if [ -n "$$prev_tag" ]; then \
+		echo "📌 Comparing commits since $$prev_tag"; \
+		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- \033[1;33m[%ad]\033[0m \033[1;32m%an\033[0m: %s" --date=short --no-color | tac; \
 	else \
-		printf "⚠️  \\033[1;31mNo tags found — showing all commits.\\033[0m\n"; \
-		git log --date=short \
-			--pretty=format:"\\033[1;33m- [%ad]\\033[0m \\033[1;32m%an\\033[0m: %s" \
-		| awk '{gsub(/\\033/, "\033"); print}' | sort -r; \
+		echo "📌 No previous tag found — showing all commits."; \
+		git --no-pager log --pretty=format:"- \033[1;33m[%ad]\033[0m \033[1;32m%an\033[0m: %s" --date=short --no-color | tac; \
 	fi; \
-	printf "\n✅ \\033[1;32mAbove entries would be added to the next changelog section.\\033[0m\n"
+	echo ""; \
+	echo "✅ Above entries would be added to the next changelog section."
 
 
 
