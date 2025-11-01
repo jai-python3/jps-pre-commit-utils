@@ -222,30 +222,28 @@ changelog:
 	echo ""; \
 	echo "🗒️  Updating docs/CHANGELOG.md for version $$VERSION"; \
 	mkdir -p docs; \
-	TMP_CHANGELOG=$$(mktemp); \
-	{ \
-		echo "## [$$VERSION] - $(DATE)"; \
-		echo "- Released via automated Makefile workflow."; \
-		echo ""; \
-		prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
-		if [ -n "$$prev_tag" ]; then \
-			echo "🧾 Including commits since $$prev_tag"; \
-			git log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --reverse | sort -r >> $$TMP_CHANGELOG; \
-		else \
-			echo "🧾 No previous tag found — including all commits."; \
-			git log --pretty=format:"- [%ad] %an: %s" --date=short | sort -r >> $$TMP_CHANGELOG; \
-		fi; \
-		echo ""; \
-	} > $$TMP_CHANGELOG; \
 	if [ ! -f docs/CHANGELOG.md ]; then \
 		echo "# Changelog" > docs/CHANGELOG.md; \
 		echo "" >> docs/CHANGELOG.md; \
-		cat $$TMP_CHANGELOG >> docs/CHANGELOG.md; \
-	else \
-		awk 'NR==1{print; print ""; system("cat $$TMP_CHANGELOG"); next} 1' docs/CHANGELOG.md > $$TMP_CHANGELOG.new && mv $$TMP_CHANGELOG.new docs/CHANGELOG.md; \
 	fi; \
-	rm -f $$TMP_CHANGELOG; \
+	echo "## [$$VERSION] - $(DATE)" > docs/.CHANGELOG.tmp; \
+	echo "- Released via automated Makefile workflow." >> docs/.CHANGELOG.tmp; \
+	echo "" >> docs/.CHANGELOG.tmp; \
+	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
+	if [ -n "$$prev_tag" ]; then \
+		echo "🧾 Including commits since $$prev_tag"; \
+		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tail -r >> docs/.CHANGELOG.tmp; \
+	else \
+		echo "🧾 No previous tag found — including all commits."; \
+		git --no-pager log --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tail -r >> docs/.CHANGELOG.tmp; \
+	fi; \
+	echo "" >> docs/.CHANGELOG.tmp; \
+	# Prepend new changelog section (newest first)
+	(cat docs/.CHANGELOG.tmp; echo ""; cat docs/CHANGELOG.md) > docs/.CHANGELOG.new; \
+	mv docs/.CHANGELOG.new docs/CHANGELOG.md; \
+	rm -f docs/.CHANGELOG.tmp; \
 	echo "✅ Changelog updated at docs/CHANGELOG.md"
+
 
 
 # Allow "make release PATCH" to behave like "make release PART=PATCH"
