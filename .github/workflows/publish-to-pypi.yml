@@ -11,25 +11,44 @@ permissions:
 
 jobs:
   publish:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.ref_name == 'main') }}
+    if: >
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          startsWith(github.event.workflow_run.head_branch, 'main') }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed so tags are available
+
+      - name: Get tag for commit
+        id: get_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 --exact-match 2>/dev/null || echo "")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Detected tag: $TAG"
+
+      - name: Verify tag format
+        if: steps.get_tag.outputs.tag != ''
+        run: |
+          TAG="${{ steps.get_tag.outputs.tag }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "❌ Tag $TAG is not a valid semver (vX.Y.Z). Aborting."
+            exit 1
+          fi
+          echo "✅ Tag $TAG is valid semver."
+
+      - name: Stop if no valid tag
+        if: steps.get_tag.outputs.tag == ''
+        run: |
+          echo "⚠️ No tag found for this commit. Skipping publish."
+          exit 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
 
       - name: Install build dependencies
         run: pip install build twine requests
@@ -52,7 +71,7 @@ jobs:
           fi
 
       - name: Publish to PyPI
-        if: steps.check.outputs.skip == 'false'
+        if: steps.check.outputs.skip == 'false' && startsWith(steps.get_tag.outputs.tag, 'v')
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
