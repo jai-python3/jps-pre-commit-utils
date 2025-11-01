@@ -4,26 +4,33 @@ on:
   push:
     branches:
       - main
-      - development
+      - develop
       - feature/**
       - bugfix/**
       - hotfix/**
+    tags-ignore:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -39,21 +46,17 @@ jobs:
       - name: Lint and test with coverage
         run: |
           make lint
-          pytest -v --disable-warnings \
-          --cov=src/jps_pre_commit_utils \
-          --cov-report=xml \
-          --cov-report=term-missing
+          make test
 
       - name: Verify package build
-        run: |
-          make build
-          ls -lh dist/
+        run: make build
 
-      # Optional: upload coverage results to Codecov
       - name: Upload coverage to Codecov
+        if: success()
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: unittests
           fail_ci_if_error: false
+          verbose: true
