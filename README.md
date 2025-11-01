@@ -4,7 +4,6 @@
 ![Publish to PyPI](https://github.com/jai-python3/jps-pre-commit-utils/actions/workflows/publish-to-pypi.yml/badge.svg)
 [![codecov](https://codecov.io/gh/jai-python3/jps-pre-commit-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/jai-python3/jps-pre-commit-utils)
 
-
 Custom pre-commit utilities for detecting debug/test leftovers, hardcoded paths, and environment-specific code fragments  
 in Python, Perl, and YAML files before they are committed.  
 These checks catch issues that are not easily detected by flake8, black, mypy, or bandit.
@@ -15,6 +14,7 @@ These checks catch issues that are not easily detected by flake8, black, mypy, o
 
 ✅ Scans *staged diffs* (`git diff --cached`) before commit  
 ✅ Detects newly added lines containing:
+
 - Debugging and testing statements (e.g., `print`, `sys.exit`, `pdb.set_trace`, `logger.debug`)
 - Hardcoded filesystem paths (e.g., `/mnt/synth-genomics3/...`)
 - Hardcoded environment variables or hostnames
@@ -95,7 +95,7 @@ Scanning inserted lines ━━━━━━━━━━━━━━━━━━�
 🔍 Pre-commit inserted-line scan results
 ---------------------------------------------------------
 ⚠️  File: src/example.py, Line: 18
-    Added line contains pattern: "#[ 	]*.*test"
+    Added line contains pattern: "#[  ]*.*test"
     → # test
 ---------------------------------------------------------
 ⚠️  Total findings: 1

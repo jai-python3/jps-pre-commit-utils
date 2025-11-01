@@ -1,18 +1,23 @@
 # Software Release SOP
 
 ## Purpose
+
 This document defines the standard operating procedure (SOP) for releasing new versions of the **jps-pre-commit-utils** package to GitHub and PyPI.
 It ensures consistency, traceability, and quality control for all published releases.
 
 ---
 
 ## 1. Prerequisites
+
 Before executing a release:
+
 - All code modifications are complete and committed.
 - All tests pass successfully:
+
 ```bash
   pytest -v
 ```
+
 - The pull request (PR) has been reviewed, approved, and merged into the `develop` branch.
 - The `develop` branch has been merged into `main`.
 - You have a valid PyPI API token stored as a GitHub secret (`PYPI_API_TOKEN`).
@@ -23,10 +28,12 @@ Before executing a release:
 
 1. **Feature or Bugfix Branch**
    - Develop code on a feature or bugfix branch:
+
    ```bash
      feature/JPS-XXXX-description
      bugfix/JPS-XXXX-description
    ```
+
    - Commit changes and push to remote.
 
 2. **Merge to `develop`**
@@ -43,12 +50,14 @@ Before executing a release:
 ## 3. Release Preparation
 
 1. Checkout and update the `main` branch:
+
  ```bash
    git checkout main
    git pull origin main
  ```
 
 2. Verify everything is clean:
+
  ```bash
    pytest -v
    git status
@@ -91,9 +100,11 @@ Monitor workflow progress under:
 ## 6. Verification
 
 After a successful workflow:
+
 1. Confirm the release appears on PyPI:
    [https://pypi.org/project/jps-pre-commit-utils/](https://pypi.org/project/jps-pre-commit-utils/)
 2. Install and test the published package:
+
  ```bash
    pip install jps-pre-commit-utils==x.y.z
    create-jira-workspace --help
@@ -106,10 +117,13 @@ After a successful workflow:
 ## 7. Optional Maintenance
 
 - To clean local artifacts:
+
 ```bash
   make clean
 ```
+
 - To build without releasing:
+
 ```bash
   make build
 ```

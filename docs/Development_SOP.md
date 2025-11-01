@@ -1,6 +1,7 @@
 # Developer SOP
 
 ## Purpose
+
 This document describes the standardized development workflow for the **jps-pre-commit-utils** project.  
 It ensures consistent local setup, testing, formatting, and release procedures aligned with the CI/CD pipelines.
 
@@ -9,6 +10,7 @@ It ensures consistent local setup, testing, formatting, and release procedures a
 ## 1. Environment Setup
 
 ### 1.1 Prerequisites
+
 - Python 3.11 or newer (Linux / WSL2 / macOS)
 - Git
 - Make
@@ -18,23 +20,27 @@ It ensures consistent local setup, testing, formatting, and release procedures a
 ### 1.2 Initial Setup
 
 Clone the repository:
+
 ```bash
 git clone git@github.com:jai-python3/jps-pre-commit-utils.git
 cd jps-pre-commit-utils
 ```
 
 Create a virtual environment:
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 Install the package and development dependencies:
+
 ```bash
 pip install -e '.[dev]'
 ```
 
 Verify tools:
+
 ```bash
 black --version
 flake8 --version
@@ -49,6 +55,7 @@ pre-commit --version
 ### 2.1 Linting and Formatting
 
 Run **flake8** and **black** before committing:
+
 ```bash
 make lint
 make format
@@ -62,16 +69,19 @@ make format
 Pre-commit hooks automatically enforce formatting, remove unused imports, and run static checks before each commit.
 
 Install and activate pre-commit hooks:
+
 ```bash
 pre-commit install
 ```
 
 Run them manually for all files:
+
 ```bash
 pre-commit run --all-files
 ```
 
 To temporarily bypass hooks (use sparingly):
+
 ```bash
 git commit --no-verify -m "Commit message"
 ```
@@ -83,11 +93,13 @@ git commit --no-verify -m "Commit message"
 All tests are written using **pytest** and reside in the `tests/` directory.
 
 Run the test suite:
+
 ```bash
 make test
 ```
 
 or directly:
+
 ```bash
 pytest -v
 ```
@@ -101,6 +113,7 @@ CI automatically executes these tests on every push and pull request.
 ### 4.1 Dry Run
 
 Perform a dry run to simulate a release without committing or pushing changes:
+
 ```bash
 make release PATCH DRYRUN=1
 ```
@@ -110,6 +123,7 @@ This confirms that version bumping and changelog generation work as expected.
 ### 4.2 Real Release
 
 Perform a real semantic version bump and publish:
+
 ```bash
 make release PATCH
 # or
@@ -119,6 +133,7 @@ make release MAJOR
 ```
 
 Actions performed automatically:
+
 1. Bump version in `pyproject.toml`
 2. Generate changelog with author + date
 3. Commit and tag (`vX.Y.Z`)
@@ -129,9 +144,11 @@ Actions performed automatically:
 ### 4.3 Verification
 
 After a release:
+
 - Verify the GitHub Actions workflow **Publish to PyPI** completed successfully.
 - Confirm the new version appears at [PyPI](https://pypi.org/project/jps-pre-commit-utils/).
 - Optionally test the installation:
+
 ```bash
 pip install jps-pre-commit-utils==<new_version>
 ```
@@ -171,22 +188,28 @@ Monitor workflows under **GitHub → Actions**.
 ## 7. Troubleshooting
 
 ### 7.1 "Syntax error: redirection unexpected"
+
 Add this line near the top of your Makefile:
+
 ```bash
 SHELL := /bin/bash
 ```
 
 ### 7.2 "File already exists" during PyPI upload
+
 Each PyPI release version is immutable.  
 You must increment the version (e.g., `1.0.0` → `1.0.1`) before retrying.
 
 ### 7.3 Lint errors for line length 79 instead of 100
+
 Ensure `.flake8` exists in the project root with:
+
 ```bash
 max-line-length = 100
 ```
 
 ### 7.4 Removing pre-commit restrictions temporarily
+
 ```bash
 git commit --no-verify
 ```
@@ -195,11 +218,11 @@ git commit --no-verify
 
 ## 8. References
 
-- PyPI Publishing Guide: https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
-- Pre-commit Framework: https://pre-commit.com/
-- Flake8 Rules: https://flake8.pycqa.org/en/latest/user/error-codes.html
-- Black Formatter: https://black.readthedocs.io/en/stable/
-- GitHub Actions Documentation: https://docs.github.com/en/actions
+- PyPI Publishing Guide: <https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/>
+- Pre-commit Framework: <https://pre-commit.com/>
+- Flake8 Rules: <https://flake8.pycqa.org/en/latest/user/error-codes.html>
+- Black Formatter: <https://black.readthedocs.io/en/stable/>
+- GitHub Actions Documentation: <https://docs.github.com/en/actions>
 
 ---
 
