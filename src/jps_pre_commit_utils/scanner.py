@@ -9,8 +9,7 @@ from .rules import compile_patterns
 Added = Union[str, Iterable[str]]
 
 
-def scan_diff(diff_text: Added,
-              config: Mapping[str, object]) -> List[Dict[str, str]]:
+def scan_diff(diff_text: Added, config: Mapping[str, object]) -> List[Dict[str, str]]:
     """Scan added lines and return list of findings.
 
     Accepts either a single string (with newlines) or an iterable of lines.
@@ -43,7 +42,5 @@ def scan_diff(diff_text: Added,
         for group, patterns in compiled.items():
             for pat in patterns:
                 if pat.search(line):
-                    findings.append(
-                        {"pattern": pat.pattern, "line": line, "group": group}
-                    )
+                    findings.append({"pattern": pat.pattern, "line": line, "group": group})
     return findings

@@ -50,9 +50,6 @@ def print_report(findings: Iterable[Mapping[str, str]]) -> None:
                 f"'{pat}' (group: {group}) → {line}"
             )
         else:
-            _console_print(
-                "[yellow]Added line contains pattern:[/yellow] "
-                f"'{pat}' → {line}"
-            )
+            _console_print("[yellow]Added line contains pattern:[/yellow] " f"'{pat}' → {line}")
 
     _console_print(f"\n[red]⚠️ Total findings: {len(items)}[/red]")

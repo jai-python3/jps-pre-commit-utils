@@ -1,5 +1,6 @@
 # tests/test_scanner.py
 import re
+
 from jps_pre_commit_utils import scanner
 
 
@@ -33,7 +34,7 @@ def test_scan_diff_no_matches(monkeypatch):
     """Ensure scan_diff returns an empty list when no matches found."""
     monkeypatch.setattr(
         "jps_pre_commit_utils.scanner.compile_patterns",
-        lambda cfg: {"python": [re.compile(r"forbidden")]}
+        lambda cfg: {"python": [re.compile(r"forbidden")]},
     )
 
     added_lines = ["safe_line", "another_safe_line"]
@@ -45,8 +46,7 @@ def test_scan_diff_no_matches(monkeypatch):
 def test_scan_diff_handles_empty_input(monkeypatch):
     """Handles empty added lines gracefully."""
     monkeypatch.setattr(
-        "jps_pre_commit_utils.scanner.compile_patterns",
-        lambda cfg: {"python": [re.compile(r".*")]}
+        "jps_pre_commit_utils.scanner.compile_patterns", lambda cfg: {"python": [re.compile(r".*")]}
     )
     config = {"patterns": {"python": [".*"]}}
     results = scanner.scan_diff([], config)

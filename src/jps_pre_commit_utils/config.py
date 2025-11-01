@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Mapping, MutableMapping, Any
+from typing import Any, Dict, Mapping, MutableMapping
 
 import yaml
 
@@ -54,8 +54,7 @@ def _read_yaml(path: Path) -> Dict[str, Any]:
         return {}
 
 
-def _merge(base: MutableMapping[str, Any],
-           override: Mapping[str, Any]) -> Dict[str, Any]:
+def _merge(base: MutableMapping[str, Any], override: Mapping[str, Any]) -> Dict[str, Any]:
     """Shallow merge override keys into base.
 
     Args:
