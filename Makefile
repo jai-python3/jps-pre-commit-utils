@@ -39,7 +39,10 @@ help:
 clean:
 	@echo ""
 	@echo "🧹 Cleaning build and cache artifacts..."
-	rm -rf build dist *.egg-info .pytest_cache .coverage
+	rm -rf build dist .pytest_cache .coverage
+	find . -type d -name '__pycache__' -exec rm -rf {} +
+	find . -type d -name '*.egg-info' -exec rm -rf {} +
+
 
 version:
 	@echo ""
