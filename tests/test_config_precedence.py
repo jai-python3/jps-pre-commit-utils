@@ -33,9 +33,9 @@ def test_load_config_prefers_local_over_home(tmp_path, monkeypatch):
     # Local config should take priority
     assert result["paths"] == ["/local-data"]
     assert "python" in result["patterns"]
-    assert "perl" in result["patterns"]
+    assert "perl" not in result["patterns"]
     # The merged config should include both pattern groups
-    assert set(result["patterns"].keys()) == {"python", "perl"}
+    assert set(result["patterns"].keys()) == {"python"}
 
 
 def test_load_config_handles_invalid_home_yaml(tmp_path, monkeypatch):

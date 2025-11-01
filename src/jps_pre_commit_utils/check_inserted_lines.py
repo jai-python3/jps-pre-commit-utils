@@ -1,31 +1,26 @@
-#!/usr/bin/env python3
-"""Legacy wrapper for jps-pre-commit-utils.
+"""Entry point for the jps-pre-commit-utils pre-commit hook.
 
-This module exists for backward compatibility with the entry point:
-    jj-pre-commit-checks = "jps_pre_commit_utils.check_inserted_lines:main"
+This wrapper delegates to the main CLI entry point so the utility can be
+executed both as a module:
 
-All functional logic has been refactored into jps_pre_commit_utils.cli.
+    python -m jps_pre_commit_utils.check_inserted_lines
 
-It is safe to migrate the entry point to:
-    jj-pre-commit-checks = "jps_pre_commit_utils.cli:main"
-in a future release.
+and directly from its file path:
+
+    python src/jps_pre_commit_utils/check_inserted_lines.py
 """
 
-import warnings
+from __future__ import annotations
 
-from jps_pre_commit_utils.cli import main as cli_main
-
-# Emit a deprecation warning for developers and maintainers.
-warnings.warn(
-    "⚠️  The module 'jps_pre_commit_utils.check_inserted_lines' is deprecated. "
-    "Please use 'jps_pre_commit_utils.cli' instead.",
-    DeprecationWarning,
-    stacklevel=2,
-)
+# Support running either as part of an installed package or as a standalone file.
+try:
+    from .cli import main as cli_main
+except ImportError:  # pragma: no cover
+    from jps_pre_commit_utils.cli import main as cli_main
 
 
 def main() -> int:
-    """Delegate CLI execution to jps_pre_commit_utils.cli.main()."""
+    """Invoke the CLI entry point and return its exit code."""
     return cli_main()
 
 
