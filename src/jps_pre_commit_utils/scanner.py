@@ -1,6 +1,7 @@
 """Diff scanning logic."""
 
 from typing import Dict, List
+
 from .rules import compile_patterns
 
 

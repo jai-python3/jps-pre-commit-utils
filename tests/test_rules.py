@@ -1,6 +1,7 @@
 """Unit tests for jps_pre_commit_utils.rules."""
 
 import re
+
 from jps_pre_commit_utils.rules import compile_patterns
 
 

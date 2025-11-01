@@ -1,9 +1,9 @@
 """Unit tests for jps_pre_commit_utils.config."""
 
-import os
-import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
+
 import jps_pre_commit_utils.config as config
 
 

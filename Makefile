@@ -56,7 +56,7 @@ install-build-tools:
 	@echo "🛠️  Installing build tools..."
 	$(PIP) install -e '.[dev]'
 
-build:
+build: lint test
 	@echo ""
 	@echo "🔧 Building the package..."
 	$(PYTHON) -m build
@@ -113,6 +113,18 @@ format:
 	@echo "🎨 Formatting code with black..."
 	black src tests
 
+fix:
+	@echo ""
+	@echo "🧹 Auto-removing unused imports, sorting, and formatting code..."
+	autoflake --in-place --recursive --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports src tests
+	isort src tests
+	black src tests
+	flake8 src tests
+
+precommit:
+	@echo "✅ Running pre-commit hooks on all files..."
+	pre-commit run --all-files
+
 # -----------------------------------------------------------
 # Semantic Version Bumping and Release
 # -----------------------------------------------------------
@@ -140,7 +152,7 @@ bump_version:
 		echo "🔢 Bumped version: $$current → $$new_version"; \
 	fi
 
-release:
+release: lint test
 	@if [ -z "$(PART)" ]; then \
 		echo "❌ Missing version part argument."; \
 		echo "Usage: make release PART=[PATCH|MINOR|MAJOR] [DRYRUN=1]"; \

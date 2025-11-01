@@ -7,10 +7,11 @@ and base paths to scan for in added lines.
 """
 
 from __future__ import annotations
-import os
-import yaml
+
 from pathlib import Path
 from typing import Any, Dict
+
+import yaml
 
 
 def _deep_merge(base: dict, override: dict) -> dict:

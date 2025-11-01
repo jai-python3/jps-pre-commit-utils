@@ -37,7 +37,9 @@ dev = [
     "pytest>=8.0.0",
     "pytest-cov>=5.0.0",
     "isort>=5.13.0",
-    "codecov>=2.1.13"
+    "codecov>=2.1.13",
+    "autoflake>=2.3.1",
+    "pre-commit>=3.8.0"
 ]
 
 [tool.setuptools]

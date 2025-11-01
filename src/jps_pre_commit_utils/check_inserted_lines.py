@@ -12,8 +12,8 @@ in a future release.
 """
 
 import warnings
-from jps_pre_commit_utils.cli import main as cli_main
 
+from jps_pre_commit_utils.cli import main as cli_main
 
 # Emit a deprecation warning for developers and maintainers.
 warnings.warn(

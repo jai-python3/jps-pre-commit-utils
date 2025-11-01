@@ -2,8 +2,8 @@
 
 from .config import load_config
 from .git_diff import get_staged_diff
-from .scanner import scan_diff
 from .report import print_report
+from .scanner import scan_diff
 
 
 def main() -> int:

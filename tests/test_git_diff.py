@@ -1,6 +1,7 @@
 """Unit tests for jps_pre_commit_utils.git_diff."""
 
 import subprocess
+
 from jps_pre_commit_utils.git_diff import get_staged_diff
 
 

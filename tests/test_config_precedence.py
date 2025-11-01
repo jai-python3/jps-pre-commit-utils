@@ -1,8 +1,9 @@
 """Regression test to ensure local config overrides home config."""
 
 from pathlib import Path
+
 import yaml
-import pytest
+
 import jps_pre_commit_utils.config as config
 
 
