@@ -174,12 +174,12 @@ release: lint test
 	VERSION=$$(cat .version); \
 	echo ""; \
 	echo "🔖 Releasing version $$VERSION"; \
-	git add pyproject.toml .version; \
+	$(MAKE) changelog VERSION=$$VERSION; \
+	git add pyproject.toml .version docs/CHANGELOG.md; \
 	git commit -m "Release v$$VERSION"; \
 	git tag -a "v$$VERSION" -m "Release v$$VERSION\n\nReleased on $(DATE)"; \
 	git push origin main; \
 	git push origin "v$$VERSION"; \
-	$(MAKE) changelog VERSION=$$VERSION; \
 	$(MAKE) clean build; \
 	echo ""; \
 	echo "🚀 Skipping local PyPI upload — CI will publish automatically upon tag push."; \
@@ -222,27 +222,53 @@ changelog:
 	echo ""; \
 	echo "🗒️  Updating docs/CHANGELOG.md for version $$VERSION"; \
 	mkdir -p docs; \
+	TMP_CHANGELOG=$$(mktemp); \
+	{ \
+		echo "## [$$VERSION] - $(DATE)"; \
+		echo "- Released via automated Makefile workflow."; \
+		echo ""; \
+		prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
+		if [ -n "$$prev_tag" ]; then \
+			echo "🧾 Including commits since $$prev_tag"; \
+			git log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --reverse | sort -r >> $$TMP_CHANGELOG; \
+		else \
+			echo "🧾 No previous tag found — including all commits."; \
+			git log --pretty=format:"- [%ad] %an: %s" --date=short | sort -r >> $$TMP_CHANGELOG; \
+		fi; \
+		echo ""; \
+	} > $$TMP_CHANGELOG; \
 	if [ ! -f docs/CHANGELOG.md ]; then \
 		echo "# Changelog" > docs/CHANGELOG.md; \
 		echo "" >> docs/CHANGELOG.md; \
-	fi; \
-	echo "## [$$VERSION] - $(DATE)" >> docs/CHANGELOG.md; \
-	echo "- Released via automated Makefile workflow." >> docs/CHANGELOG.md; \
-	echo "" >> docs/CHANGELOG.md; \
-	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
-	if [ -n "$$prev_tag" ]; then \
-		echo "🧾 Including commits since $$prev_tag"; \
-		git log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short >> docs/CHANGELOG.md; \
+		cat $$TMP_CHANGELOG >> docs/CHANGELOG.md; \
 	else \
-		echo "🧾 No previous tag found — including all commits."; \
-		git log --pretty=format:"- [%ad] %an: %s" --date=short >> docs/CHANGELOG.md; \
+		awk 'NR==1{print; print ""; system("cat $$TMP_CHANGELOG"); next} 1' docs/CHANGELOG.md > $$TMP_CHANGELOG.new && mv $$TMP_CHANGELOG.new docs/CHANGELOG.md; \
 	fi; \
-	echo "" >> docs/CHANGELOG.md; \
+	rm -f $$TMP_CHANGELOG; \
 	echo "✅ Changelog updated at docs/CHANGELOG.md"
+
 
 # Allow "make release PATCH" to behave like "make release PART=PATCH"
 # PATCH MINOR MAJOR:
 # 	@$(MAKE) release PART=$@ DRYRUN=$(DRYRUN)
+
+changelog-preview:
+	@printf "\n🧾 \\033[1;36mPreviewing changelog entries since last tag...\\033[0m\n"
+	@latest_tag=$$(git describe --tags --abbrev=0 2>/dev/null || echo ""); \
+	if [ -n "$$latest_tag" ]; then \
+		printf "📌 \\033[1;34mComparing commits since %s\\033[0m\n\n" "$$latest_tag"; \
+		git log "$$latest_tag"..HEAD --date=short \
+			--pretty=format:"\\033[1;33m- [%ad]\\033[0m \\033[1;32m%an\\033[0m: %s" \
+		| awk '{gsub(/\\033/, "\033"); print}' | sort -r; \
+	else \
+		printf "⚠️  \\033[1;31mNo tags found — showing all commits.\\033[0m\n"; \
+		git log --date=short \
+			--pretty=format:"\\033[1;33m- [%ad]\\033[0m \\033[1;32m%an\\033[0m: %s" \
+		| awk '{gsub(/\\033/, "\033"); print}' | sort -r; \
+	fi; \
+	printf "\n✅ \\033[1;32mAbove entries would be added to the next changelog section.\\033[0m\n"
+
+
 
 build-test:
 	@$(MAKE) clean
