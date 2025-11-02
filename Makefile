@@ -174,7 +174,7 @@ release: lint test
 		exit 0; \
 	fi; \
 
-	VERSION=$$(cat .version); \
+	@VERSION=$$(cat .version); \
 	if git rev-parse "v$$VERSION" >/dev/null 2>&1; then \
 		echo ""; \
 		echo "⚠️  Tag v$$VERSION already exists — aborting release."; \
