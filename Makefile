@@ -286,7 +286,7 @@ changelog:
 				} \
 				print ""; \
 			}' >> docs/.CHANGELOG.tmp; \
-	} \
+	}
 	echo ""; \
 	\
 	# --- Ensure correct spacing (markdownlint compliant) --- \
