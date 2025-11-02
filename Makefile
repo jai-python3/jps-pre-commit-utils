@@ -153,25 +153,34 @@ bump_version:
 	fi
 
 release: lint test
-	@if [ -z "$(PART)" ]; then \
+	@set -euo pipefail; \
+	if [ -z "$(PART)" ]; then \
 		echo "❌ Missing version part argument."; \
 		echo "Usage: make release PART=[PATCH|MINOR|MAJOR] [DRYRUN=1]"; \
 		exit 1; \
 	fi; \
 
 	@# Ensure working directory is completely clean (no modified or untracked files)
-	@if [ -n "$$(git status --porcelain)" ]; then \
+	if [ -n "$$(git status --porcelain)" ]; then \
 		echo ""; \
 		echo "❌ Working directory not clean. Commit or stash changes before releasing."; \
 		exit 1; \
 	fi; \
+
 	$(MAKE) bump_version PART=$(PART) DRYRUN=$(DRYRUN); \
 	if [ "$(DRYRUN)" = "1" ]; then \
 		echo ""; \
 		echo "🧪 [DRY RUN] Skipping commit, tag, push, changelog, and PyPI upload."; \
 		exit 0; \
 	fi; \
+
 	VERSION=$$(cat .version); \
+	if git rev-parse "v$$VERSION" >/dev/null 2>&1; then \
+		echo ""; \
+		echo "⚠️  Tag v$$VERSION already exists — aborting release."; \
+		exit 1; \
+	fi; \
+
 	echo ""; \
 	echo "🔖 Releasing version $$VERSION"; \
 	$(MAKE) changelog VERSION=$$VERSION; \
@@ -186,7 +195,6 @@ release: lint test
 	echo "✅ Successfully created and pushed release tag v$$VERSION to GitHub."; \
 	echo "ℹ️  The GitHub Actions workflow 'Publish to PyPI' will now build and upload the package."; \
 	echo "ℹ️  If the version already exists on PyPI, CI will detect it and skip the upload safely."; \
-	echo ""; \
 	echo "📦 Release summary:"; \
 	echo "   - Version: v$$VERSION"; \
 	echo "   - Date: $(DATE)"; \
