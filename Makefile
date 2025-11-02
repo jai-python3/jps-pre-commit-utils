@@ -154,33 +154,41 @@ bump_version:
 
 release: lint test
 	@set -euo pipefail; \
+	\
+	# --- Validate input arguments --- \
 	if [ -z "$(PART)" ]; then \
 		echo "❌ Missing version part argument."; \
 		echo "Usage: make release PART=[PATCH|MINOR|MAJOR] [DRYRUN=1]"; \
 		exit 1; \
 	fi; \
-
-	@# Ensure working directory is completely clean (no modified or untracked files)
-	@if [ -n "$$(git status --porcelain)" ]; then \
+	\
+	# --- Verify working directory cleanliness --- \
+	if [ -n "$$(git status --porcelain)" ]; then \
 		echo ""; \
 		echo "❌ Working directory not clean. Commit or stash changes before releasing."; \
 		exit 1; \
 	fi; \
-
-	@$(MAKE) bump_version PART=$(PART) DRYRUN=$(DRYRUN); \
+	\
+	# --- Compute version bump --- \
+	$(MAKE) bump_version PART=$(PART) DRYRUN=$(DRYRUN); \
+	\
+	# --- Handle DRY RUN mode --- \
 	if [ "$(DRYRUN)" = "1" ]; then \
 		echo ""; \
 		echo "🧪 [DRY RUN] Skipping commit, tag, push, changelog, and PyPI upload."; \
+		echo "🧩 Dry-run mode ends successfully — no files modified."; \
 		exit 0; \
 	fi; \
-
-	@VERSION=$$(cat .version); \
+	\
+	# --- Read new version and verify tag uniqueness --- \
+	VERSION=$$(cat .version); \
 	if git rev-parse "v$$VERSION" >/dev/null 2>&1; then \
 		echo ""; \
 		echo "⚠️  Tag v$$VERSION already exists — aborting release."; \
 		exit 1; \
 	fi; \
-
+	\
+	# --- Proceed with release --- \
 	echo ""; \
 	echo "🔖 Releasing version $$VERSION"; \
 	$(MAKE) changelog VERSION=$$VERSION; \
@@ -189,12 +197,17 @@ release: lint test
 	git tag -a "v$$VERSION" -m "Release v$$VERSION\n\nReleased on $(DATE)"; \
 	git push origin main; \
 	git push origin "v$$VERSION"; \
+	\
+	# --- Rebuild for confirmation (safety measure) --- \
 	$(MAKE) clean build; \
 	echo ""; \
+	\
+	# --- Post-release summary --- \
 	echo "🚀 Skipping local PyPI upload — CI will publish automatically upon tag push."; \
 	echo "✅ Successfully created and pushed release tag v$$VERSION to GitHub."; \
 	echo "ℹ️  The GitHub Actions workflow 'Publish to PyPI' will now build and upload the package."; \
 	echo "ℹ️  If the version already exists on PyPI, CI will detect it and skip the upload safely."; \
+	echo ""; \
 	echo "📦 Release summary:"; \
 	echo "   - Version: v$$VERSION"; \
 	echo "   - Date: $(DATE)"; \
