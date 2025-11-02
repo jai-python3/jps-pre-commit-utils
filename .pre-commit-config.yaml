@@ -40,5 +40,5 @@ repos:
       # Run markdownlint with auto-fix enabled
       - id: markdownlint-cli2
         name: "Markdownlint (fix + check)"
-        args: ["--fix"]
+        args: ["--fix", "--config=.markdownlint.yaml"]
         files: \.(md|markdown)$

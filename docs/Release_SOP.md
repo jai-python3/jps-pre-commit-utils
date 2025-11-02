@@ -2,7 +2,8 @@
 
 ## Purpose
 
-This document defines the standard operating procedure (SOP) for releasing new versions of the **jps-pre-commit-utils** package to GitHub and PyPI.
+This document defines the standard operating procedure (SOP) for releasing new versions of the **jps-pre-commit-utils**
+package to GitHub and PyPI.
 It ensures consistency, traceability, and quality control for all published releases.
 
 ---
@@ -51,17 +52,17 @@ Before executing a release:
 
 1. Checkout and update the `main` branch:
 
- ```bash
-   git checkout main
-   git pull origin main
- ```
+    ```bash
+      git checkout main
+      git pull origin main
+    ```
 
 2. Verify everything is clean:
 
- ```bash
-   pytest -v
-   git status
- ```
+    ```bash
+      pytest -v
+      git status
+    ```
 
 3. Ensure the version number you plan to release does not already exist on PyPI.
 
@@ -71,9 +72,11 @@ Before executing a release:
 
 Execute the release process using the Makefile:
 
+```markdown
 <codeblock bash>
 make release VERSION=x.y.z
 </codeblock>
+```
 
 This command performs the following actions:
 
@@ -103,12 +106,13 @@ After a successful workflow:
 
 1. Confirm the release appears on PyPI:
    [https://pypi.org/project/jps-pre-commit-utils/](https://pypi.org/project/jps-pre-commit-utils/)
+
 2. Install and test the published package:
 
- ```bash
-   pip install jps-pre-commit-utils==x.y.z
-   create-jira-workspace --help
- ```
+    ```bash
+      pip install jps-pre-commit-utils==x.y.z
+      create-jira-workspace --help
+    ```
 
 3. Update internal documentation or Confluence pages to record the release version and date.
 
@@ -163,4 +167,4 @@ After a successful workflow:
 
 ---
 
-*Document version: 1.0.0 — Maintained by Jaideep Sundaram*
+## Document version: 1.0.0 — Maintained by Jaideep Sundaram

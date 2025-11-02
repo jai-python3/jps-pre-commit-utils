@@ -226,4 +226,4 @@ git commit --no-verify
 
 ---
 
-*Document version: 1.0.0 — Maintained by Jaideep Sundaram*
+## Document version: 1.0.0 — Maintained by Jaideep Sundaram
