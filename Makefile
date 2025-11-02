@@ -257,8 +257,9 @@ changelog:
 # 	@$(MAKE) release PART=$@ DRYRUN=$(DRYRUN)
 
 changelog-preview:
-	@printf "\n🧾 \033[1;36mPreviewing changelog entries since last tag...\033[0m\n"
-	@prev_tag=$$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo ""); \
+	@REPO_URL="https://github.com/jai-python3/jps-pre-commit-utils"; \
+	printf "\n🧾 \033[1;36mPreviewing changelog entries since last tag...\033[0m\n"; \
+	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo ""); \
 	if [ -n "$$prev_tag" ]; then \
 		printf "📌 \033[1;34mComparing commits since %s\033[0m\n\n" "$$prev_tag"; \
 		range="$$prev_tag..HEAD"; \
@@ -267,20 +268,29 @@ changelog-preview:
 		range=""; \
 	fi; \
 	git --no-pager log $$range \
-		--pretty=format:"%ad%x09%an%x09%s%n%b%n" --date=short --no-color | tac \
-	| awk 'BEGIN{Y="\033[1;33m";G="\033[1;32m";Z="\033[0m"} \
-	       /^[[:space:]]*$$/ {next} \
-	       {split($$0,a,"\t"); \
-	        if (length(a)>=3) { \
-	          subj=a[3]; \
-	          for(i=4;i<=length(a);i++) subj=subj "\t" a[i]; \
-	          printf("- %s[%s]%s %s%s%s: %s\n",Y,a[1],Z,G,a[2],Z,subj); \
-	        } else { \
-	          gsub(/^[[:space:]]*/,""); \
-	          printf("    %s\n", $$0); \
-	        } \
-	       }'
+		--pretty=format:"%x1f%h%n%ad%n%an%n%s%n%b" --date=short --no-color \
+	| awk -v RS="\x1f" -v repo="$$REPO_URL" '\
+		NF { \
+			split($$0, lines, "\n"); \
+			if (length(lines) < 4) next; \
+			hash = lines[1]; date = lines[2]; author = lines[3]; \
+			printf("- [%s] %s [(%s)](%s/commit/%s):\n", date, author, hash, repo, hash); \
+			if (length(lines[4]) > 0) printf("    %s\n", lines[4]); \
+			body_seen=0; \
+			for (i=5; i<=length(lines); i++) { \
+				line = lines[i]; \
+				if (line ~ /^[[:space:]]*$$/) continue; \
+				if (body_seen == 0) { print ""; body_seen=1; } \
+				gsub(/^[[:space:]]*/, "", line); \
+				printf("    %s\n", line); \
+			} \
+			print ""; \
+		}'
 	@printf "\n✅ \033[1;32mAbove entries would be added to the next changelog section.\033[0m\n"
+
+
+
+
 
 
 
