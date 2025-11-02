@@ -219,6 +219,7 @@ endif
 changelog:
 	@VERSION=$(VERSION); \
 	if [ -z "$$VERSION" ]; then VERSION=$(CURRENT_VERSION); fi; \
+	REPO_URL="https://github.com/jai-python3/jps-pre-commit-utils"; \
 	echo ""; \
 	echo "🗒️  Updating docs/CHANGELOG.md for version $$VERSION"; \
 	mkdir -p docs; \
@@ -226,17 +227,38 @@ changelog:
 		echo "# Changelog" > docs/CHANGELOG.md; \
 		echo "" >> docs/CHANGELOG.md; \
 	fi; \
-	echo "## [$$VERSION] - $(DATE)" > docs/.CHANGELOG.tmp; \
-	echo "- Released via automated Makefile workflow." >> docs/.CHANGELOG.tmp; \
-	echo "" >> docs/.CHANGELOG.tmp; \
-	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
-	if [ -n "$$prev_tag" ]; then \
-		echo "🧾 Including commits since $$prev_tag"; \
-		git --no-pager log "$$prev_tag"..HEAD --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tac >> docs/.CHANGELOG.tmp; \
-	else \
-		echo "🧾 No previous tag found — including all commits."; \
-		git --no-pager log --pretty=format:"- [%ad] %an: %s" --date=short --no-color | tac >> docs/.CHANGELOG.tmp; \
-	fi; \
+	{ \
+		echo "## [$$VERSION] - $(DATE)"; \
+		echo "- Released via automated Makefile workflow."; \
+		echo ""; \
+		prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
+		if [ -n "$$prev_tag" ]; then \
+			echo "🧾 Including commits since $$prev_tag"; \
+			range="$$prev_tag..HEAD"; \
+		else \
+			echo "🧾 No previous tag found — including all commits."; \
+			range=""; \
+		fi; \
+		git --no-pager log $$range \
+			--pretty=format:"%x1f%h%n%ad%n%an%n%s%n%b" --date=short --no-color \
+		| awk -v RS="\x1f" -v repo="$$REPO_URL" '\
+			NF { \
+				split($$0, lines, "\n"); \
+				if (length(lines) < 4) next; \
+				hash = lines[1]; date = lines[2]; author = lines[3]; \
+				printf("- [%s] %s [(%s)](%s/commit/%s):\n", date, author, hash, repo, hash); \
+				if (length(lines[4]) > 0) printf("    %s\n", lines[4]); \
+				body_seen=0; \
+				for (i=5; i<=length(lines); i++) { \
+					line = lines[i]; \
+					if (line ~ /^[[:space:]]*$$/) continue; \
+					if (body_seen == 0) { print ""; body_seen=1; } \
+					gsub(/^[[:space:]]*/, "", line); \
+					printf("    %s\n", line); \
+				} \
+				print ""; \
+			}'; \
+	} > docs/.CHANGELOG.tmp; \
 	echo "" >> docs/.CHANGELOG.tmp; \
 	# Ensure correct spacing (markdownlint compliant)
 	sed -i '/^## /i\\' docs/CHANGELOG.md 2>/dev/null || true; \
@@ -248,8 +270,6 @@ changelog:
 	# Clean extra blank lines (avoid markdownlint MD012)
 	sed -i '/^$$/{N;/^\n$$/D;}' docs/CHANGELOG.md 2>/dev/null || true; \
 	echo "✅ Changelog updated at docs/CHANGELOG.md"
-
-
 
 
 # Allow "make release PATCH" to behave like "make release PART=PATCH"
