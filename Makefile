@@ -161,13 +161,13 @@ release: lint test
 	fi; \
 
 	@# Ensure working directory is completely clean (no modified or untracked files)
-	if [ -n "$$(git status --porcelain)" ]; then \
+	@if [ -n "$$(git status --porcelain)" ]; then \
 		echo ""; \
 		echo "❌ Working directory not clean. Commit or stash changes before releasing."; \
 		exit 1; \
 	fi; \
 
-	$(MAKE) bump_version PART=$(PART) DRYRUN=$(DRYRUN); \
+	@$(MAKE) bump_version PART=$(PART) DRYRUN=$(DRYRUN); \
 	if [ "$(DRYRUN)" = "1" ]; then \
 		echo ""; \
 		echo "🧪 [DRY RUN] Skipping commit, tag, push, changelog, and PyPI upload."; \
