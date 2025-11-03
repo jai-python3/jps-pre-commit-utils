@@ -239,111 +239,18 @@ endif
 # -----------------------------------------------------------
 changelog:
 	@set -euo pipefail; \
-	VERSION=$(VERSION); \
-	if [ -z "$$VERSION" ]; then VERSION=$(CURRENT_VERSION); fi; \
-	REPO_URL="https://github.com/jai-python3/jps-pre-commit-utils"; \
-	echo ""; \
-	echo "🗒️  Updating docs/CHANGELOG.md for version $$VERSION"; \
-	mkdir -p docs; \
-	if [ ! -f docs/CHANGELOG.md ]; then \
-		echo "# Changelog" > docs/CHANGELOG.md; \
-		echo "" >> docs/CHANGELOG.md; \
-	fi; \
-	{ \
-		echo "## [$$VERSION] - $(DATE)"; \
-		echo ""; \
-		echo "- Released via automated Makefile workflow."; \
-		echo ""; \
-		prev_tag=$$(git describe --tags --abbrev=0 --match "v*" --exclude "v$$VERSION" 2>/dev/null || echo ""); \
-		if [ -n "$$prev_tag" ]; then \
-			echo "🧾 Including commits since $$prev_tag"; \
-			range="$$prev_tag..HEAD"; \
-		else \
-			echo "🧾 No previous tag found — including all commits."; \
-			range=""; \
-		fi; \
-		git --no-pager log $$range \
-			--pretty=format:"␟%h%n%ad%n%an%n%s%n%b" --date=short --no-color | tac | \
-		awk -v RS="␟" -v repo="$$REPO_URL" '\
-			function wrap_line(line, indent, width,   out, n, i) { \
-				n = int(length(line) / width); \
-				for (i = 0; i <= n; i++) { \
-					seg = substr(line, i*width + 1, width); \
-					if (length(seg) > 0) out = out indent seg "\n"; \
-				} \
-				return out; \
-			} \
-			NF { \
-				split($$0, lines, "\n"); \
-				if (length(lines) < 4) next; \
-				hash = lines[1]; date = lines[2]; author = lines[3]; \
-				printf("- [%s] %s [(%.7s)](%s/commit/%.7s):\n", date, author, hash, repo, hash); \
-				for (i=4; i<=length(lines); i++) { \
-					line = lines[i]; \
-					if (line ~ /^[[:space:]]*$$/) continue; \
-					gsub(/^[[:space:]]*/, "", line); \
-					printf("%s", wrap_line(line, "    ", 100)); \
-				} \
-				print ""; \
-			}' >> docs/.CHANGELOG.tmp; \
-	}
-	echo ""; \
-	\
-	# --- Ensure correct spacing (markdownlint compliant) --- \
-	sed -i '/^## /i\\' docs/CHANGELOG.md 2>/dev/null || true; \
-	sed -i '/^-/i\\' docs/CHANGELOG.md 2>/dev/null || true; \
-	\
-	# --- Prepend new changelog section (newest first) --- \
-	(cat docs/.CHANGELOG.tmp; echo ""; cat docs/CHANGELOG.md) > docs/.CHANGELOG.new; \
-	mv docs/.CHANGELOG.new docs/CHANGELOG.md; \
-	rm -f docs/.CHANGELOG.tmp; \
-	\
-	# --- Clean extra blank lines (avoid markdownlint MD012) --- \
-	sed -i '/^$$/{N;/^\n$$/D;}' docs/CHANGELOG.md 2>/dev/null || true; \
-	echo "✅ Changelog updated at docs/CHANGELOG.md"
+	echo "🗒️  Updating CHANGELOG.md..."; \
+	python3 scripts/update_changelog.py "$(CURRENT_VERSION)"; \
+	echo "✅ CHANGELOG updated successfully."
 
+changelog-preview:
+	@set -euo pipefail; \
+	echo "🧾 Previewing changelog entries..."; \
+	python3 scripts/update_changelog.py "$(CURRENT_VERSION)" --preview
 
 # Allow "make release PATCH" to behave like "make release PART=PATCH"
 # PATCH MINOR MAJOR:
 # 	@$(MAKE) release PART=$@ DRYRUN=$(DRYRUN)
-
-changelog-preview:
-	@REPO_URL="https://github.com/jai-python3/jps-pre-commit-utils"; \
-	printf "\n🧾 \033[1;36mPreviewing changelog entries since last tag...\033[0m\n"; \
-	prev_tag=$$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo ""); \
-	if [ -n "$$prev_tag" ]; then \
-		printf "📌 \033[1;34mComparing commits since %s\033[0m\n\n" "$$prev_tag"; \
-		range="$$prev_tag..HEAD"; \
-	else \
-		printf "⚠️  \033[1;31mNo tags found — showing all commits.\033[0m\n\n"; \
-		range=""; \
-	fi; \
-	git --no-pager log $$range \
-		--pretty=format:"%x1f%h%n%ad%n%an%n%s%n%b" --date=short --no-color \
-	| awk -v RS="\x1f" -v repo="$$REPO_URL" '\
-		NF { \
-			split($$0, lines, "\n"); \
-			if (length(lines) < 4) next; \
-			hash = lines[1]; date = lines[2]; author = lines[3]; \
-			printf("- [%s] %s [(%s)](%s/commit/%s):\n", date, author, hash, repo, hash); \
-			if (length(lines[4]) > 0) printf("    %s\n", lines[4]); \
-			body_seen=0; \
-			for (i=5; i<=length(lines); i++) { \
-				line = lines[i]; \
-				if (line ~ /^[[:space:]]*$$/) continue; \
-				if (body_seen == 0) { print ""; body_seen=1; } \
-				gsub(/^[[:space:]]*/, "", line); \
-				printf("    %s\n", line); \
-			} \
-			print ""; \
-		}'
-	@printf "\n✅ \033[1;32mAbove entries would be added to the next changelog section.\033[0m\n"
-
-
-
-
-
-
 
 build-test:
 	@$(MAKE) clean
