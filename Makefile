@@ -11,7 +11,7 @@ PART := $(word 2, $(MAKECMDGOALS))
 DRYRUN ?= 0
 DATE := $(shell date +'%Y-%m-%d')
 
-.PHONY: help clean version install-build-tools build publish install uninstall test lint format release bump_version changelog build-test
+.PHONY: help clean version install-build-tools build publish install uninstall test lint format release bump_version changelog build-test precommit vulture
 
 # -----------------------------------------------------------
 # Help
@@ -32,6 +32,8 @@ help:
 	@echo "  make format                - Format code with black"
 	@echo "  make release [PATCH|MINOR|MAJOR] [DRYRUN=1] - Bump version, tag, build, and publish release"
 	@echo "  make changelog             - Append latest release entry to docs/CHANGELOG.md"
+	@echo "  make precommit             - Run pre-commit hooks on all files"
+	@echo "  make vulture               - Run vulture to find unused code"
 
 # -----------------------------------------------------------
 # Clean and Utility
@@ -61,6 +63,11 @@ build: lint test
 	@echo "🔧 Building the package..."
 	$(PYTHON) -m build
 
+build-test:
+	@$(MAKE) clean
+	@$(MAKE) build
+	@$(MAKE) test
+
 publish:
 	@echo ""
 	@echo "🚀 Publishing distribution to PyPI..."
@@ -83,25 +90,14 @@ test:
 	@echo ""
 	@echo "🧪 Running pytest with coverage..."
 	pytest -v --disable-warnings \
-  --cov=src/jps_pre_commit_utils \
-  --cov-report=term-missing \
-  --cov-config=.coveragerc \
-  --cov-branch \
-  --cov-fail-under=0 \
-  --cov-append \
-  --cov-context=test \
-  --cov-report=xml \
-  --cov-report=term-missing \
-  --cov-branch \
-  --cov-fail-under=0 \
-  --cov-context=test \
-  --cov-append \
-  --cov-append \
-  --cov-context=test \
-  --cov-report=term-missing \
-  --cov-append \
-  --cov-context=test
-
+	  --cov=src/jps_pre_commit_utils \
+	  --cov-report=term-missing \
+	  --cov-report=xml \
+	  --cov-config=.coveragerc \
+	  --cov-branch \
+	  --cov-fail-under=0 \
+	  --cov-append \
+	  --cov-context=test
 
 lint:
 	@echo ""
@@ -124,6 +120,10 @@ fix:
 precommit:
 	@echo "✅ Running pre-commit hooks on all files..."
 	pre-commit run --all-files
+
+vulture:
+	@echo "🪶 Running Vulture dead code analysis..."
+	vulture src --min-confidence 80 --exclude tests,venv,build,dist
 
 # -----------------------------------------------------------
 # Semantic Version Bumping and Release

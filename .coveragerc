@@ -1,9 +1,19 @@
 [run]
 branch = True
 parallel = True
-# Remove the concurrency line entirely – pytest-cov enables subprocess tracking automatically
 source = src/jps_pre_commit_utils
 
 [report]
 show_missing = True
 skip_covered = True
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+omit =
+    tests/*
+    */__init__.py
+
+[html]
+directory = htmlcov
+title = Coverage Report for jps-cookiecutter-utils
+show_contexts = true
