@@ -28,7 +28,6 @@ Issues = "https://github.com/jai-python3/jps-pre-commit-utils/issues"
 jj-pre-commit-checks = "jps_pre_commit_utils.check_inserted_lines:main"
 
 [project.optional-dependencies]
-test = ["pytest>=8.0.0"]
 dev = [
     "flake8>=7.0.0",
     "black>=24.0.0",
