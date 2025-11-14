@@ -10,8 +10,12 @@ class DummyResult:
         self.stdout = stdout
 
 
-def test_get_staged_diff_returns_stdout(monkeypatch):
-    """Should return stdout from subprocess.run."""
+def test_get_staged_diff_returns_stdout(monkeypatch: object) -> None:
+    """Should return stdout from subprocess.run.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
 
     def mock_run(*a, **kw):
         return DummyResult("MOCK_DIFF")
@@ -21,8 +25,12 @@ def test_get_staged_diff_returns_stdout(monkeypatch):
     assert result == "MOCK_DIFF"
 
 
-def test_get_staged_diff_handles_empty_output(monkeypatch):
-    """Should return empty string when subprocess has no output."""
+def test_get_staged_diff_handles_empty_output(monkeypatch: object) -> None:
+    """Should return empty string when subprocess has no output.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
 
     def mock_run(*a, **kw):
         return DummyResult("")
@@ -31,8 +39,12 @@ def test_get_staged_diff_handles_empty_output(monkeypatch):
     assert get_staged_diff() == ""
 
 
-def test_get_staged_diff_does_not_raise(monkeypatch):
-    """Should not raise even if subprocess.run fails."""
+def test_get_staged_diff_does_not_raise(monkeypatch: object) -> None:
+    """Should not raise even if subprocess.run fails.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
 
     def mock_run(*a, **kw):
         raise subprocess.SubprocessError("git failed")

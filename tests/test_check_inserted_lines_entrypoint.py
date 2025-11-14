@@ -4,8 +4,13 @@ import sys
 from pathlib import Path
 
 
-def test_entrypoint_invokes_cli(monkeypatch, tmp_path):
-    """Run the module as a subprocess to ensure imports resolve correctly."""
+def test_entrypoint_invokes_cli(monkeypatch: object, tmp_path: object) -> None:
+    """Run the module as a subprocess to ensure imports resolve correctly.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+        tmp_path: pytest temporary directory fixture.
+    """
     script_path = Path("src/jps_pre_commit_utils/check_inserted_lines.py")
     assert script_path.exists()
 

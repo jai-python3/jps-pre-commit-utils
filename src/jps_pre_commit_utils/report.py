@@ -5,13 +5,17 @@ from __future__ import annotations
 from typing import Iterable, Mapping
 
 try:
-    from rich.console import Console  # type: ignore
+    from rich.console import Console
 except Exception:  # pragma: no cover
     Console = None
 
 
 def _console_print(msg: str) -> None:
-    """Print using Rich if available; otherwise plain print."""
+    """Print using Rich if available; otherwise plain print.
+
+    Args:
+        msg: Message string, may include Rich markup.
+    """
     if Console is not None:
         Console().print(msg)
     else:

@@ -4,8 +4,12 @@ import re
 from jps_pre_commit_utils import scanner
 
 
-def test_scan_diff_detects_patterns(monkeypatch):
-    """Ensure scan_diff flags lines containing forbidden patterns."""
+def test_scan_diff_detects_patterns(monkeypatch: object) -> None:
+    """Ensure scan_diff flags lines containing forbidden patterns.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
     # Mock compile_patterns to return regex objects
     monkeypatch.setattr(
         "jps_pre_commit_utils.scanner.compile_patterns",
@@ -30,8 +34,12 @@ def test_scan_diff_detects_patterns(monkeypatch):
     assert any("TODO" in r["line"] for r in results)
 
 
-def test_scan_diff_no_matches(monkeypatch):
-    """Ensure scan_diff returns an empty list when no matches found."""
+def test_scan_diff_no_matches(monkeypatch: object) -> None:
+    """Ensure scan_diff returns an empty list when no matches found.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
     monkeypatch.setattr(
         "jps_pre_commit_utils.scanner.compile_patterns",
         lambda cfg: {"python": [re.compile(r"forbidden")]},
@@ -43,8 +51,12 @@ def test_scan_diff_no_matches(monkeypatch):
     assert results == []
 
 
-def test_scan_diff_handles_empty_input(monkeypatch):
-    """Handles empty added lines gracefully."""
+def test_scan_diff_handles_empty_input(monkeypatch: object) -> None:
+    """Handles empty added lines gracefully.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
     monkeypatch.setattr(
         "jps_pre_commit_utils.scanner.compile_patterns", lambda cfg: {"python": [re.compile(r".*")]}
     )

@@ -7,7 +7,14 @@ from typing import Dict, List
 
 
 def _as_list(value: object) -> List[str]:
-    """Normalize a string or list-of-strings to a list of strings."""
+    """Normalize a string or list-of-strings to a list of strings.
+
+    Args:
+        value: Input value of various possible types.
+
+    Returns:
+        List[str]: Normalized list of strings.
+    """
     if value is None:
         return []
     if isinstance(value, str):

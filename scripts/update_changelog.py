@@ -14,13 +14,21 @@ import subprocess
 import sys
 from datetime import date
 from pathlib import Path
+from typing import List
 
 
 # -------------------------------------------------------------
 # Utility functions
 # -------------------------------------------------------------
-def run_git_command(args):
-    """Execute a git command and return stdout as text."""
+def run_git_command(args: List[str]) -> str:
+    """Execute a git command and return stdout as text.
+
+    Args:
+        args: List of git command arguments.
+
+    Returns:
+        The standard output from the git command as a string.
+    """
     result = subprocess.run(
         ["git", "--no-pager", *args],
         capture_output=True,
@@ -30,8 +38,12 @@ def run_git_command(args):
     return result.stdout.strip()
 
 
-def get_latest_tag():
-    """Return the latest version tag matching v* (or None)."""
+def get_latest_tag() -> str | None:
+    """Return the latest version tag matching v* (or None).
+
+    Returns:
+        The latest tag string or None if not found.
+    """
     try:
         tag = run_git_command(["describe", "--tags", "--abbrev=0", "--match", "v*"])
         return tag or None
@@ -39,8 +51,15 @@ def get_latest_tag():
         return None
 
 
-def get_commits(prev_tag=None):
-    """Retrieve commits, capturing only the first line (subject)."""
+def get_commits(prev_tag: str | None = None) -> List[dict]:
+    """Retrieve commits, capturing only the first line (subject).
+
+    Args:
+        prev_tag: The previous tag to start from (exclusive). If None, uses all history
+
+    Returns:
+        A list of commit dictionaries with keys: hash, date, author, subject.
+    """
     fmt = "%h%x1f%ad%x1f%an%x1f%s%x1e"
     args = [
         "log",
@@ -72,8 +91,17 @@ def get_commits(prev_tag=None):
 # -------------------------------------------------------------
 # Formatting functions
 # -------------------------------------------------------------
-def format_changelog_entries(entries, repo_url, color=False):
-    """Format commit entries into Markdown or colorized terminal output."""
+def format_changelog_entries(entries: List[dict], repo_url: str, color: bool = False) -> str:
+    """Format commit entries into Markdown or colorized terminal output.
+
+    Args:
+        entries: List of commit dictionaries with keys: hash, date, author, subject.
+        repo_url: Base URL of the repository for commit links.
+        color: If True, add ANSI color codes for terminal output.
+
+    Returns:
+        Formatted changelog string.
+    """
     lines = []
     for e in entries:
         commit_link = f"[({e['hash']})]({repo_url}/commit/{e['hash']})"
@@ -94,8 +122,17 @@ def format_changelog_entries(entries, repo_url, color=False):
     return "\n".join(lines) + "\n"
 
 
-def build_changelog_section(version, repo_url, preview=False):
-    """Generate the full changelog text for a given version."""
+def build_changelog_section(version: str, repo_url: str, preview: bool = False) -> str:
+    """Generate the full changelog text for a given version.
+
+    Args:
+        version: The new version string (e.g., "v1.2.3").
+        repo_url: Base URL of the repository for commit links.
+        preview: If True, format with terminal colors for preview.
+
+    Returns:
+        The complete changelog section as a string.
+    """
     today = date.today().strftime("%Y-%m-%d")
     prev_tag = get_latest_tag()
 
@@ -110,8 +147,13 @@ def build_changelog_section(version, repo_url, preview=False):
     return header + body
 
 
-def prepend_to_file(path: Path, text: str):
-    """Prepend text to a file, creating it if necessary."""
+def prepend_to_file(path: Path, text: str) -> None:
+    """Prepend text to a file, creating it if necessary.
+
+    Args:
+        path: Path to the file to prepend text to.
+        text: The text to prepend.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text("# Changelog\n\n")
@@ -122,7 +164,7 @@ def prepend_to_file(path: Path, text: str):
 # -------------------------------------------------------------
 # Main
 # -------------------------------------------------------------
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         print("❌ Missing version argument.")
         print("Usage: update_changelog.py <version> [--preview]")

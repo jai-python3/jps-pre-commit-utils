@@ -20,7 +20,11 @@ except ImportError:  # pragma: no cover
 
 
 def main() -> int:
-    """Invoke the CLI entry point and return its exit code."""
+    """Invoke the CLI entry point and return its exit code.
+
+    Returns:
+        int: Exit code from the CLI main function.
+    """
     return cli_main()
 
 

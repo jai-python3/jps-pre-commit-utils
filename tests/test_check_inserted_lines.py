@@ -3,10 +3,14 @@ import sys
 from pathlib import Path
 
 
-def test_check_inserted_lines_runs(monkeypatch, tmp_path):
-    """
-    Smoke test to ensure the pre-commit utility executes without crashing.
+def test_check_inserted_lines_runs(monkeypatch: object, tmp_path: object) -> None:
+    """Smoke test to ensure the pre-commit utility executes without crashing.
+
     This test does NOT require a git repository — it simulates an empty diff.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+        tmp_path: pytest temporary directory fixture.
     """
 
     script_path = Path("src/jps_pre_commit_utils/check_inserted_lines.py")

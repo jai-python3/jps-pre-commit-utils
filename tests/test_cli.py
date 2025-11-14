@@ -2,8 +2,12 @@
 from jps_pre_commit_utils import cli
 
 
-def test_cli_main_invokes_all_components(monkeypatch):
-    """Ensure main() ties together the expected workflow."""
+def test_cli_main_invokes_all_components(monkeypatch: object):
+    """Ensure main() ties together the expected workflow.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
 
     called = {}
 
@@ -21,8 +25,12 @@ def test_cli_main_invokes_all_components(monkeypatch):
     assert "printed" in called
 
 
-def test_cli_main_returns_zero_when_no_findings(monkeypatch):
-    """Ensure it returns 0 when scan_diff reports no findings."""
+def test_cli_main_returns_zero_when_no_findings(monkeypatch: object):
+    """Ensure it returns 0 when scan_diff reports no findings.
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture.
+    """
 
     monkeypatch.setattr(cli, "get_staged_diff", lambda: "")
     monkeypatch.setattr(cli, "load_config", lambda: {"patterns": {}})

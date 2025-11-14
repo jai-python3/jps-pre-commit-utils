@@ -7,10 +7,14 @@ import yaml
 import jps_pre_commit_utils.config as config
 
 
-def test_load_config_prefers_local_over_home(tmp_path, monkeypatch):
-    """
-    Verify that a local `.my-pre-commit-checks.yaml` takes precedence over
-    `~/.config/my-pre-commit-checks.yaml` if both exist.
+def test_load_config_prefers_local_over_home(tmp_path: object, monkeypatch: object) -> None:
+    """Verify that a local `.my-pre-commit-checks.yaml` takes precedence.
+
+    The local config should override `~/.config/my-pre-commit-checks.yaml` if both exist.
+
+    Args:
+        tmp_path: pytest temporary directory fixture.
+        monkeypatch: pytest monkeypatch fixture.
     """
     # Prepare fake home directory with config
     home_cfg = tmp_path / ".config" / "my-pre-commit-checks.yaml"
@@ -38,10 +42,14 @@ def test_load_config_prefers_local_over_home(tmp_path, monkeypatch):
     assert set(result["patterns"].keys()) == {"python"}
 
 
-def test_load_config_handles_invalid_home_yaml(tmp_path, monkeypatch):
-    """
-    Verify that invalid YAML in the home config does NOT crash and
-    the loader gracefully falls back to defaults.
+def test_load_config_handles_invalid_home_yaml(tmp_path: object, monkeypatch: object) -> None:
+    """Verify that invalid YAML in the home config does NOT crash.
+
+    This verifies that the loader gracefully falls back to defaults.
+
+    Args:
+        tmp_path: pytest temporary directory fixture.
+        monkeypatch: pytest monkeypatch fixture.
     """
     # Create malformed YAML in fake home config
     home_cfg = tmp_path / ".config" / "my-pre-commit-checks.yaml"

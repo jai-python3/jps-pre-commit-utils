@@ -54,7 +54,7 @@ def _read_yaml(path: Path) -> Dict[str, Any]:
         return {}
 
 
-def _merge(base: MutableMapping[str, Any], override: Mapping[str, Any]) -> Dict[str, Any]:
+def _merge(base: MutableMapping[str, Any], override: Mapping[str, Any]) -> MutableMapping[str, Any]:
     """Shallow merge override keys into base.
 
     Args:
@@ -62,7 +62,7 @@ def _merge(base: MutableMapping[str, Any], override: Mapping[str, Any]) -> Dict[
         override: New values.
 
     Returns:
-        Dict[str, Any]: Updated base (also returned for convenience).
+        MutableMapping[str, Any]: Updated base (also returned for convenience).
     """
     for k, v in override.items():
         base[k] = v
