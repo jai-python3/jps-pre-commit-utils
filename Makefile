@@ -49,7 +49,7 @@ version:
 	@echo "📦 Current version: $(CURRENT_VERSION)"
 
 # -----------------------------------------------------------
-# Build, Publish, Install, Uninstall
+# Build, Install, Uninstall
 # -----------------------------------------------------------
 install-build-tools:
 	@echo ""
@@ -65,11 +65,6 @@ build-test:
 	@$(MAKE) clean
 	@$(MAKE) build
 	@$(MAKE) test
-
-publish:
-	@echo ""
-	@echo "🚀 Publishing distribution to PyPI..."
-	twine upload dist/*
 
 install:
 	@echo ""
