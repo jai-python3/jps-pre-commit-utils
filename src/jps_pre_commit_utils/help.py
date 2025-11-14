@@ -21,8 +21,9 @@ RESET = "\033[0m"
 
 def main() -> None:
     """Display help for all entrypoint scripts in this package."""
-    help_text = textwrap.dedent(
-        f"""
+    help_text = (
+        textwrap.dedent(
+            f"""
     jps-pre-commit-utils — Available Commands
     ====================================================
 
@@ -44,7 +45,9 @@ def main() -> None:
     ----------------------------------------------------
     Tip: Run each command with '--help' to see detailed options and configuration.
     """
-    ).strip() + "\n"
+        ).strip()
+        + "\n"
+    )
 
     print(help_text)
 
