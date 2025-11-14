@@ -118,6 +118,7 @@ Run all development checks:
 make fix && make format && make lint
 make test
 ```
+
 ---
 
 ## 🧪 Testing
