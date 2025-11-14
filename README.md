@@ -46,7 +46,7 @@ pip install -e '.[dev]'
 Run manually:
 
 ```bash
-jps-pre-commit-checks
+jps-pre-commit-util-checks
 ```
 
 Or integrate with Git pre-commit:
@@ -109,39 +109,22 @@ Scanning inserted lines ━━━━━━━━━━━━━━━━━━�
 Install dependencies for linting, formatting, and testing:
 
 ```bash
-pip install -e '.[dev]'
+make install-build-tools
 ```
 
 Run all development checks:
 
 ```bash
-make lint
+make fix && make format && make lint
 make test
 ```
-
-Build the distribution:
-
-```bash
-make build
-```
-
 ---
 
 ## 🧪 Testing
 
 ```bash
-pytest -v --disable-warnings
+make test
 ```
-
----
-
-## 🚀 Publishing
-
-```bash
-make publish
-```
-
-This command builds and uploads the package to PyPI via `twine`.
 
 ---
 
